@@ -1,6 +1,8 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from commons.aws.s3 import upload_pdf
+
+from domain import upload
+
 app = FastAPI()
 
 app.add_middleware(
@@ -11,6 +13,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/")
-async def root(file: UploadFile):
-    return upload_pdf(file)
+app.include_router(upload.router, prefix="/upload")
+
+
