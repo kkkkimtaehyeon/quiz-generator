@@ -21,10 +21,10 @@ class S3:
         key = self.generate_objectkey(file)
         self.client.put_object(Body=file.file, Bucket=self.S3_BUCKET, Key=key, ContentType='application/pdf')
         
-        return f'https://{self.S3_BUCKET}.s3.{self.S3_REGION}.amazonaws.com/{key}'
+        return key
 
     def get_pdf_file_stream(self, key):
-        obj = self.get_object(Bucket=self.S3_BUCKET, Key=key)
+        obj = self.client.get_object(Bucket=self.S3_BUCKET, Key=key)
         return io.BytesIO(obj['Body'].read())
 
     def generate_objectkey(self, file):

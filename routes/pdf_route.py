@@ -17,8 +17,8 @@ async def get_pdfs():
 
 @router.post("/")
 async def post_pdf(name: Annotated[str, Form()], file: Annotated[UploadFile, File()]):
-    url = s3.upload_pdf(file)
-    pdf = Pdf(name=name, url = url)
+    key = s3.upload_pdf(file)
+    pdf = Pdf(name=name, key = key)
     collection_name.insert_one(dict(pdf))
 
 @router.put("/{id}")
