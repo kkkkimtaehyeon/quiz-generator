@@ -4,17 +4,20 @@ from openai import OpenAI
 from langchain_openai import ChatOpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import ChatPromptTemplate
-from commons.aws.s3 import get_pdf_file_stream
+from domain.aws import S3
 from dotenv import load_dotenv, find_dotenv
+
+from models.quiz import QuizRequest
 
 _ = load_dotenv(find_dotenv())
 
 client = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY')
 )
+s3 = S3()
 
 def read_pdf(key):
-    file_stream = get_pdf_file_stream(key)
+    file_stream = s3.get_pdf_file_stream(key)
     doc = fitz.open(stream=file_stream)
     text = ''
     for page in doc:
@@ -59,18 +62,33 @@ def select_prompt(type, size):
     elif type == "주관식":
         return single_prompt(size)
 
-response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    temperature=0.1,
-    response_format = {"type": "json_object"},
-    messages=[
-    {"role": "system", "content": select_prompt("객관식", 1)},
-    {"role": "user", "content": pdf_text}
-  ]
-)
+# response = client.chat.completions.create(
+#     model="gpt-3.5-turbo",
+#     temperature=0.1,
+#     response_format = {"type": "json_object"},
+#     messages=[
+#     {"role": "system", "content": select_prompt("객관식", 1)},
+#     {"role": "user", "content": pdf_text}
+#   ]
+# )
 
 
-print(response.choices[0].message.content)
+# print(response.choices[0].message.content)
+
+
+# 퀴즈 생성
+async def create_quiz(quiz: QuizRequest):
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        temperature=0.1,
+        response_format = {"type": "json_object"}, 
+        messages=[
+        {"role": "system", "content": select_prompt(quiz.type, quiz.size)},
+        {"role": "user", "content": read_pdf(quiz.pdf)}
+        ]
+    )
+
+    return response.choices[0].message.content
 
 
 
