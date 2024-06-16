@@ -4,4 +4,5 @@ client = MongoClient("mongodb+srv://pdfessor:pdfessor1927@cluster-quiz.rhaoexv.m
 
 db = client.pdf_db
 
-collection_name = db['pdf_collection']
+pdf_collection = db['pdf_collection']
+quiz_collection = db['quiz_collection']

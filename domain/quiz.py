@@ -6,6 +6,7 @@ from langchain.chains import LLMChain
 from langchain.prompts import ChatPromptTemplate
 from domain.aws import S3
 from dotenv import load_dotenv, find_dotenv
+import json
 
 from models.quiz import QuizRequest
 
@@ -33,10 +34,12 @@ def multiple_prompt(size):
     문제는 객관식 형태로 {size}개 생성해.
     문제의 key는 question이야.
 
+    문제가 여러 개일 때는 question들을 questions 리스트로 감싸.
     문제 형태가 객관식일 때: 보기들은 options로 묶어.
-    각 option들은 1~4까지 있어.
+    각 option들은 1~4까지의 리스트야.
 
     문제의 답인 answer은 option의 key 값 중 하나이고, 모든 문제에는 답이 필수적으로 있어야 돼.
+    
     
     텍스트에 써지지 않은 내용에 대해서는 언급도 하지말고 함부로 문제를 생성하지마.
     문제의 형태에 맞는 답을 생성해.
@@ -77,7 +80,7 @@ def select_prompt(type, size):
 
 
 # 퀴즈 생성
-async def create_quiz(quiz: QuizRequest):
+def create_quiz(quiz: QuizRequest):
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         temperature=0.1,
@@ -88,7 +91,7 @@ async def create_quiz(quiz: QuizRequest):
         ]
     )
 
-    return response.choices[0].message.content
+    return json.loads(response.choices[0].message.content)
 
 
 

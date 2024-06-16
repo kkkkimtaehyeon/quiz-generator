@@ -22,6 +22,9 @@ class S3:
         self.client.put_object(Body=file.file, Bucket=self.S3_BUCKET, Key=key, ContentType='application/pdf')
         
         return key
+    
+    def delete_pdf(self, key):
+        self.client.delete_object(Bucket=self.S3_BUCKET, Key=key)
 
     def get_pdf_file_stream(self, key):
         obj = self.client.get_object(Bucket=self.S3_BUCKET, Key=key)
